@@ -156,4 +156,5 @@ Do this instead of re-importing `schema.sql` (which would erase your data):
 - To test the age restriction, register a test account with a birthdate less
   than 18 years ago, then try to pay — GCash/PayMaya will be disabled.
 #   B a r b e r S h o p . C o O n l i n e  
+ #   B a r b e r S h o p . C o O n l i n e  
  
