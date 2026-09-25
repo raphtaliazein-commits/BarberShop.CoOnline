@@ -6,7 +6,7 @@
 |--------------------------------------------------------------------------
 */
 
-// Fetch environment variables (Railway first, then DB_*, fallback to XAMPP local)
+// Subukang basahin ang Railway native variables, kapag wala ay fall back sa custom o local
 $databaseServer   = getenv('MYSQLHOST')     ?: (getenv('DB_HOST')     ?: "localhost");
 $databasePort     = (int)(getenv('MYSQLPORT') ?: (getenv('DB_PORT')     ?: 3306));
 $databaseUsername = getenv('MYSQLUSER')     ?: (getenv('DB_USER')     ?: "root");
@@ -22,7 +22,7 @@ $databaseConnection = mysqli_connect(
     $databasePort
 );
 
-// Check connection
+// Check if connection was successful
 if (!$databaseConnection) {
     die("Database connection failed: " . mysqli_connect_error());
 }
