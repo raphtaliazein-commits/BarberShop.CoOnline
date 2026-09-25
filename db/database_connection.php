@@ -4,26 +4,17 @@
 |--------------------------------------------------------------------------
 | BARBERSHOP.CO DATABASE CONNECTION
 |--------------------------------------------------------------------------
-| Connects using Railway Private Networking for internal speed & stability.
-|--------------------------------------------------------------------------
 */
 
-// Set connection timeout to 5 seconds to prevent 'Application failed to respond'
-ini_set('default_socket_timeout', 5);
-mysqli_report(MYSQLI_REPORT_OFF);
+// Basahin ang injected Railway environment variables
+$databaseServer   = getenv('MYSQLHOST')     ?: (getenv('DB_HOST')     ?: "mysql.railway.internal");
+$databasePort     = (int)(getenv('MYSQLPORT') ?: (getenv('DB_PORT')     ?: 3306));
+$databaseUsername = getenv('MYSQLUSER')     ?: (getenv('DB_USER')     ?: "root");
+$databasePassword = getenv('MYSQLPASSWORD') ?: (getenv('DB_PASSWORD') ?: "BLRUdpzCNwXhmkwBFwcNsQTwPOFFZhPI");
+$databaseName     = getenv('MYSQLDATABASE') ?: (getenv('DB_NAME')     ?: "railway");
 
-// Railway Private Internal Details
-$databaseServer   = getenv('MYSQLHOST')     ?: "mysql.railway.internal";
-$databasePort     = (int)(getenv('MYSQLPORT') ?: 3306);
-$databaseUsername = getenv('MYSQLUSER')     ?: "root";
-$databasePassword = getenv('MYSQLPASSWORD') ?: "BLRUdpzCNwXhmkwBFwcNsQTwPOFFZhPI";
-$databaseName     = getenv('MYSQLDATABASE') ?: "railway";
-
-// Create MySQL connection with 5-second connection timeout limit
-$databaseConnection = mysqli_init();
-$databaseConnection->options(MYSQLI_OPT_CONNECT_TIMEOUT, 5);
-
-@$databaseConnection->real_connect(
+// Subukang kumonekta sa internal host
+$databaseConnection = @mysqli_connect(
     $databaseServer,
     $databaseUsername,
     $databasePassword,
@@ -31,9 +22,23 @@ $databaseConnection->options(MYSQLI_OPT_CONNECT_TIMEOUT, 5);
     $databasePort
 );
 
-// Check if connection failed
-if ($databaseConnection->connect_error) {
-    die("Database Connection Error: " . $databaseConnection->connect_error);
+// Kapag nag-fail ang internal host, i-fallback sa public host
+if (!$databaseConnection) {
+    $databaseServer = "turntable.proxy.rlwy.net";
+    $databasePort   = 43174;
+    
+    $databaseConnection = mysqli_connect(
+        $databaseServer,
+        $databaseUsername,
+        $databasePassword,
+        $databaseName,
+        $databasePort
+    );
+}
+
+// I-check kung may error pa rin
+if (!$databaseConnection) {
+    die("Database Connection Error: " . mysqli_connect_error());
 }
 
 // Set character encoding
