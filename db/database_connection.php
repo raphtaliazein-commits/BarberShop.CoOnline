@@ -6,14 +6,14 @@
 |--------------------------------------------------------------------------
 */
 
-// Basahin ang injected Railway environment variables
-$databaseServer   = getenv('MYSQLHOST')     ?: (getenv('DB_HOST')     ?: "mysql.railway.internal");
-$databasePort     = (int)(getenv('MYSQLPORT') ?: (getenv('DB_PORT')     ?: 3306));
-$databaseUsername = getenv('MYSQLUSER')     ?: (getenv('DB_USER')     ?: "root");
-$databasePassword = getenv('MYSQLPASSWORD') ?: (getenv('DB_PASSWORD') ?: "BLRUdpzCNwXhmkwBFwcNsQTwPOFFZhPI");
-$databaseName     = getenv('MYSQLDATABASE') ?: (getenv('DB_NAME')     ?: "railway");
+// Subukang basahin ang environment variables, kapag wala ay gagamitin ang Railway direct credentials
+$databaseServer   = getenv('MYSQLHOST')     ?: "mysql.railway.internal";
+$databasePort     = (int)(getenv('MYSQLPORT') ?: 3306);
+$databaseUsername = getenv('MYSQLUSER')     ?: "root";
+$databasePassword = getenv('MYSQLPASSWORD') ?: "BLRUdpzCNwXhmkwBFwcNsQTwPOFFZhPI";
+$databaseName     = getenv('MYSQLDATABASE') ?: "railway";
 
-// Subukang kumonekta sa internal host
+// Subukang kumonekta sa internal network
 $databaseConnection = @mysqli_connect(
     $databaseServer,
     $databaseUsername,
@@ -22,7 +22,7 @@ $databaseConnection = @mysqli_connect(
     $databasePort
 );
 
-// Kapag nag-fail ang internal host, i-fallback sa public host
+// Kapag nag-fail ang internal network, subukan ang public proxy host
 if (!$databaseConnection) {
     $databaseServer = "turntable.proxy.rlwy.net";
     $databasePort   = 43174;
@@ -36,7 +36,7 @@ if (!$databaseConnection) {
     );
 }
 
-// I-check kung may error pa rin
+// I-check kung may error
 if (!$databaseConnection) {
     die("Database Connection Error: " . mysqli_connect_error());
 }
