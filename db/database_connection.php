@@ -6,12 +6,24 @@
 |--------------------------------------------------------------------------
 */
 
-// Subukang basahin ang Railway native variables, kapag wala ay fall back sa custom o local
-$databaseServer   = getenv('MYSQLHOST')     ?: (getenv('DB_HOST')     ?: "localhost");
-$databasePort     = (int)(getenv('MYSQLPORT') ?: (getenv('DB_PORT')     ?: 3306));
-$databaseUsername = getenv('MYSQLUSER')     ?: (getenv('DB_USER')     ?: "root");
-$databasePassword = getenv('MYSQLPASSWORD') ?: (getenv('DB_PASSWORD') ?: "");
-$databaseName     = getenv('MYSQLDATABASE') ?: (getenv('DB_NAME')     ?: "barbershop_database");
+// Function para makuha ang environment variable kahit saan nakatago (ENV, SERVER, or getenv)
+function getEnvVar($key, $default = null) {
+    if (isset($_ENV[$key]) && $_ENV[$key] !== '') {
+        return $_ENV[$key];
+    }
+    if (isset($_SERVER[$key]) && $_SERVER[$key] !== '') {
+        return $_SERVER[$key];
+    }
+    $val = getenv($key);
+    return ($val !== false && $val !== '') ? $val : $default;
+}
+
+// Subukang kuhanin ang Railway MYSQL variables, tapos DB_* variables, tapos local defaults
+$databaseServer   = getEnvVar('MYSQLHOST', getEnvVar('DB_HOST', 'localhost'));
+$databasePort     = (int) getEnvVar('MYSQLPORT', getEnvVar('DB_PORT', 3306));
+$databaseUsername = getEnvVar('MYSQLUSER', getEnvVar('DB_USER', 'root'));
+$databasePassword = getEnvVar('MYSQLPASSWORD', getEnvVar('DB_PASSWORD', ''));
+$databaseName     = getEnvVar('MYSQLDATABASE', getEnvVar('DB_NAME', 'barbershop_database'));
 
 // Create MySQL connection
 $databaseConnection = mysqli_connect(
@@ -22,7 +34,7 @@ $databaseConnection = mysqli_connect(
     $databasePort
 );
 
-// Check if connection was successful
+// Check connection
 if (!$databaseConnection) {
     die("Database connection failed: " . mysqli_connect_error());
 }
