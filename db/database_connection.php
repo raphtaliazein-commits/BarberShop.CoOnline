@@ -7,28 +7,26 @@
 | This file creates the connection between our PHP website
 | and the MySQL database.
 |
-| It reads DB_HOST / DB_PORT / DB_USER / DB_PASSWORD / DB_NAME from
-| environment variables first (set on Railway via Variable References
-| to the MySQL service). If those aren't set — e.g. when running
-| locally on XAMPP — it falls back to the original local defaults.
+| It reads Railway's native MySQL environment variables first, falls back
+| to custom DB_* variables, and defaults to local XAMPP settings if none 
+| are present.
 |--------------------------------------------------------------------------
 */
 
-
 // MySQL server address
-$databaseServer = getenv('DB_HOST') ?: "localhost";
+$databaseServer = getenv('MYSQLHOST') ?: (getenv('DB_HOST') ?: "localhost");
 
 // MySQL port
-$databasePort = getenv('DB_PORT') ?: 3306;
+$databasePort = (int)(getenv('MYSQLPORT') ?: (getenv('DB_PORT') ?: 3306));
 
 // MySQL username
-$databaseUsername = getenv('DB_USER') ?: "root";
+$databaseUsername = getenv('MYSQLUSER') ?: (getenv('DB_USER') ?: "root");
 
 // MySQL password
-$databasePassword = getenv('DB_PASSWORD') ?: "";
+$databasePassword = getenv('MYSQLPASSWORD') ?: (getenv('DB_PASSWORD') ?: "");
 
 // Database name
-$databaseName = getenv('DB_NAME') ?: "barbershop_database";
+$databaseName = getenv('MYSQLDATABASE') ?: (getenv('DB_NAME') ?: "barbershop_database");
 
 
 // Create MySQL connection
@@ -43,12 +41,10 @@ $databaseConnection = mysqli_connect(
 
 // Check if the connection was successful
 if (!$databaseConnection) {
-
     die(
         "Database connection failed: "
         . mysqli_connect_error()
     );
-
 }
 
 
