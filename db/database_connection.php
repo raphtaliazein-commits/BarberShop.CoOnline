@@ -4,29 +4,17 @@
 |--------------------------------------------------------------------------
 | BARBERSHOP.CO DATABASE CONNECTION
 |--------------------------------------------------------------------------
-| Handles connection to Railway MySQL or local XAMPP environment.
+| Directly uses Railway Public MySQL Connection credentials to guarantee
+| connection without relying on runtime environment variable mapping.
 |--------------------------------------------------------------------------
 */
 
-// Helper function to read environment variables reliably across environments
-function getEnvValue($key) {
-    if (isset($_ENV[$key]) && $_ENV[$key] !== '') {
-        return $_ENV[$key];
-    }
-    if (isset($_SERVER[$key]) && $_SERVER[$key] !== '') {
-        return $_SERVER[$key];
-    }
-    $val = getenv($key);
-    return ($val !== false && $val !== '') ? $val : null;
-}
-
-// Fetch DB Credentials (Checks MYSQL_* first, then DB_*, then XAMPP defaults)
-$databaseServer   = getEnvValue('MYSQLHOST')     ?? getEnvValue('DB_HOST')     ?? "localhost";
-$databasePort     = (int)(getEnvValue('MYSQLPORT') ?? getEnvValue('DB_PORT')     ?? 3306);
-$databaseUsername = getEnvValue('MYSQLUSER')     ?? getEnvValue('DB_USER')     ?? "root";
-$databasePassword = getEnvValue('MYSQLPASSWORD') ?? getEnvValue('DB_PASSWORD') ?? "";
-$databaseName     = getEnvValue('MYSQLDATABASE') ?? getEnvValue('DB_NAME')     ?? "barbershop_database";
-
+// Railway MySQL Credentials
+$databaseServer   = getenv('MYSQLHOST')     ?: "turntable.proxy.rlwy.net";
+$databasePort     = (int)(getenv('MYSQLPORT') ?: 43174);
+$databaseUsername = getenv('MYSQLUSER')     ?: "root";
+$databasePassword = getenv('MYSQLPASSWORD') ?: "BLRUdpzCNwXhmkwBFwcNsQTwPOFFZhPI";
+$databaseName     = getenv('MYSQLDATABASE') ?: "railway";
 
 // Create MySQL connection
 $databaseConnection = mysqli_connect(
@@ -37,20 +25,12 @@ $databaseConnection = mysqli_connect(
     $databasePort
 );
 
-
-// Check if the connection was successful
+// Check if connection was successful
 if (!$databaseConnection) {
-    die(
-        "Database connection failed: "
-        . mysqli_connect_error()
-    );
+    die("Database connection failed: " . mysqli_connect_error());
 }
 
-
 // Set character encoding
-mysqli_set_charset(
-    $databaseConnection,
-    "utf8mb4"
-);
+mysqli_set_charset($databaseConnection, "utf8mb4");
 
 ?>
