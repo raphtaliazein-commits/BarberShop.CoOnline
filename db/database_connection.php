@@ -4,30 +4,14 @@
 |--------------------------------------------------------------------------
 | BARBERSHOP.CO DATABASE CONNECTION
 |--------------------------------------------------------------------------
-| This file creates the connection between our PHP website
-| and the MySQL database.
-|
-| It reads Railway's native MySQL environment variables first, falls back
-| to custom DB_* variables, and defaults to local XAMPP settings if none 
-| are present.
-|--------------------------------------------------------------------------
 */
 
-// MySQL server address
-$databaseServer = getenv('MYSQLHOST') ?: (getenv('DB_HOST') ?: "localhost");
-
-// MySQL port
-$databasePort = (int)(getenv('MYSQLPORT') ?: (getenv('DB_PORT') ?: 3306));
-
-// MySQL username
-$databaseUsername = getenv('MYSQLUSER') ?: (getenv('DB_USER') ?: "root");
-
-// MySQL password
+// Fetch environment variables (Railway first, then DB_*, fallback to XAMPP local)
+$databaseServer   = getenv('MYSQLHOST')     ?: (getenv('DB_HOST')     ?: "localhost");
+$databasePort     = (int)(getenv('MYSQLPORT') ?: (getenv('DB_PORT')     ?: 3306));
+$databaseUsername = getenv('MYSQLUSER')     ?: (getenv('DB_USER')     ?: "root");
 $databasePassword = getenv('MYSQLPASSWORD') ?: (getenv('DB_PASSWORD') ?: "");
-
-// Database name
-$databaseName = getenv('MYSQLDATABASE') ?: (getenv('DB_NAME') ?: "barbershop_database");
-
+$databaseName     = getenv('MYSQLDATABASE') ?: (getenv('DB_NAME')     ?: "barbershop_database");
 
 // Create MySQL connection
 $databaseConnection = mysqli_connect(
@@ -38,20 +22,12 @@ $databaseConnection = mysqli_connect(
     $databasePort
 );
 
-
-// Check if the connection was successful
+// Check connection
 if (!$databaseConnection) {
-    die(
-        "Database connection failed: "
-        . mysqli_connect_error()
-    );
+    die("Database connection failed: " . mysqli_connect_error());
 }
 
-
 // Set character encoding
-mysqli_set_charset(
-    $databaseConnection,
-    "utf8mb4"
-);
+mysqli_set_charset($databaseConnection, "utf8mb4");
 
 ?>
